@@ -9,28 +9,29 @@ from functools import lru_cache
 import pandas as pd
 from fuzzywuzzy import fuzz, process
 
-def convert_pdf_to_images(filename):
+def convert_pdf_to_images(filename, output_path):
     """Convert a pdf to images"""
-    filename = os.path.splitext(filename)[0]
-    os.system("convert -density 350 -crop 0x0+0+330 {0}.pdf {0}.png".format(filename))
+    filename_w_path = os.path.splitext(filename)[0]
+    filename_wo_path = os.path.split(filename_w_path)[-1]
+    os.system("convert -density 350 -crop 0x0+0+330 {0}.pdf {1}.png".format(filename_w_path, os.path.join(output_path, filename_wo_path)))
 
 def ocr(filename):
     """OCR a file using tesseract"""
     filename = os.path.splitext(filename)[0]
     os.system("tesseract {0}.png {0}".format(filename))
 
-def convert_pdfs_to_text(path):
+def convert_pdfs_to_text(pdf_path, output_path):
     """Convert all PDFs in a directory to text
 
     Use convert to convert to images and tesseract for OCR
     
     """
-    pdfs = glob(os.path.join(path, "*.pdf"))
+    pdfs = glob(os.path.join(pdf_path, "*.pdf"))
     for pdf in pdfs:
-        convert_pdf_to_images(pdf)
+        convert_pdf_to_images(pdf, output_path)
         
         #multi-page pdfs create multiple png files so loop over them
-        pngs = glob(os.path.join(path, "*.png"))
+        pngs = glob(os.path.join(output_path, "*.png"))
         for png in pngs:
             ocr(png)
 
@@ -449,12 +450,13 @@ def get_valid_sp_names(sp_names_file):
 
 para_starts = {1988: 4, 1989: 6, 1990: 6, 1991: 7,
                1992: 7, 1993: 7, 1994: 7, 1995: 6}
-data_path = "./data/raw_datasets/BBC_pdfs/"
-#convert_pdfs_to_text(data_path)
+pdf_path = "./pdfs/"
+data_path = "./data/"
+#convert_pdfs_to_text(pdf_path, data_path)
 #cleanup_nonpara_pages(data_path, para_starts)
 #combine_txt_files_by_yr(data_path, para_starts.keys())
 
-valid_sp_names = get_valid_sp_names("data/raw_datasets/BBC_pdfs/bbc_species_corrections.csv")
+valid_sp_names = get_valid_sp_names("data/bbc_species_corrections.csv")
 unmatched = []
 matched = {}
 
@@ -508,6 +510,6 @@ census_table = census_table[['siteID', 'sitename', 'siteNumInCensus',
                                        'cov_visits', 'cov_times', 'cov_notes', 'area',
                                        'richness', 'territories', 'terr_notes',
                                        'weather']]
-counts_table.to_csv('data/raw_datasets/BBC_pdfs/bbc_counts.csv', index=False)
-census_table.to_csv('data/raw_datasets/BBC_pdfs/bbc_censuses.csv', index=False)
-site_table.to_csv('data/raw_datasets/BBC_pdfs/bbc_sites.csv', index=False)
+counts_table.to_csv('output/bbc_counts.csv', index=False)
+census_table.to_csv('output/bbc_censuses.csv', index=False)
+site_table.to_csv('output/bbc_sites.csv', index=False)
