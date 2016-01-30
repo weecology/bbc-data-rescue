@@ -19,4 +19,4 @@ Audubon Magazine 1941 Vol.43--1946 Vol.48
 Audubon Field Notes 1947 Vol. 1--1970 Vol.24  
 American Birds 1971 Vol.25--1984 Vol.38  
 Journal of Field Ornithology 1989(Supplement) Vol.60--1996(Supplement) Vol.67  
-[Bird Populations (online) 2006 Vol. 7--2012 Vol.11](http://www.birdpop.org/birdpop.htm)
+[Bird Populations (online) 2006 Vol. 7--2012 Vol.11](http://birdpop.org/pages/birdPopulationsJournal.php)
