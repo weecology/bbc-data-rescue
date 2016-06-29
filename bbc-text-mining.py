@@ -25,6 +25,7 @@ def parse_block(block, site_name, site_num, year):
     # Cleanup difficult issues manually
     # Combination of difficult \n's and OCR mistakes
     replacements = {'Cemus': 'Census',
+                    'Description of plot': 'Description of Plot',
                     'Description Oi Plot': 'Description of Plot',
                     'Acknowledgmentsz': 'Acknowledgments: ',
                     'Other Observers:]': 'Other Observers: ',
@@ -104,7 +105,9 @@ def parse_block(block, site_name, site_num, year):
                     'Common Crow': 'American Crow',
                     ', Raven,': ', Common Raven,',
                     '; Raven,': '; Common Raven,',
-                    '+_': '+'
+                    '+_': '+',
+                    'chickadee sp.;': 'chickadee sp.,',
+                    '98.0 territories, (236/40 ha).': '98.0 territories (236/40 ha).'
     }
     block = get_cleaned_string(block)
     for replacement in replacements:
@@ -144,7 +147,7 @@ def parse_txt_file(infile, year):
 
 def get_latlong(location):
     """Extract the latitude and longitude from the Location data"""
-    regex =  """([0-9]{1,2})[ ]*[°05C]([0-9]{1,2}) *[’|'|‘][0-9]{0,2}["|”]{0,1} *N,[ |\\n]([0-9]{2,3})[ ]*[°05C]([0-9]{1,2})[ ]*[’|'|‘][0-9]{0,2}["|”]{0,1} *[W|V|;|.]"""
+    regex =  """([0-9]{1,2})[ ]*[°˚05C]([0-9]{1,2}) *[’|'|‘][0-9]{0,2}["|”]{0,1} *N,*[ |\\n]([0-9]{2,3})[ ]*[°˚05C]([0-9]{1,2})[ ]*[’|'|‘][0-9]{0,2}["|”]{0,1} *[W|V|;|.]"""
     search = re.search(regex, location)
     if search:
         lat_deg, lat_min = int(search.group(1)), int(search.group(2))
@@ -240,7 +243,8 @@ def get_cleaned_species(species):
                                          processor=str, # Needed to hack around https://github.com/seatgeek/fuzzywuzzy/issues/77
                                          scorer=fuzz.ratio)
     if matched_species[1] >= 70:
-        if matched_species[1] <100: matched[species] = matched_species
+        if matched_species[1] < 100:
+            matched[species] = matched_species
         species = matched_species[0]
     else:
         unmatched.append((species, matched_species))
@@ -403,7 +407,7 @@ census_table = pd.DataFrame(columns = ['sitename', 'siteNumInCensus',
                                        'cov_visits', 'cov_times', 'cov_notes', 'area',
                                        'richness', 'territories', 'terr_notes',
                                        'weather'])
-years = range(1988,1996)
+years = range(2007, 2010)
 
 for year in years:
     print("\nProcessing {} data...\n".format(year))
