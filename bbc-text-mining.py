@@ -407,7 +407,7 @@ census_table = pd.DataFrame(columns = ['sitename', 'siteNumInCensus',
                                        'cov_visits', 'cov_times', 'cov_notes', 'area',
                                        'richness', 'territories', 'terr_notes',
                                        'weather'])
-years = range(2007, 2010)
+years = list(range(1988, 1996)) + list(range(2003, 2010))
 
 for year in years:
     print("\nProcessing {} data...\n".format(year))
