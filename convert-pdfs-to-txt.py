@@ -22,7 +22,7 @@ def convert_pdf_to_text(pdf_path, output_path):
     convert_pdf_to_images(pdf_path, output_path)
 
     #multi-page pdfs create multiple png files so loop over them
-    basename = os.path.splitext(os.path.basename("pdf_path"))[0]
+    basename = os.path.splitext(os.path.basename(pdf_path))[0]
     pngs = glob(os.path.join(output_path, basename + "*.png"))
     for png in pngs:
         ocr(png)
@@ -76,9 +76,24 @@ para_starts = {1988: 4, 1989: 6, 1990: 6, 1991: 7,
 pdf_dir = "./pdfs/"
 data_dir = "./data/"
 
-pdf_info = {2007: {'ocr': False, 'start_page': 1},
+pdf_info = {1988: {'ocr': True, 'start_page': 4},
+            1989: {'ocr': True, 'start_page': 6},
+            1990: {'ocr': True, 'start_page': 6},
+            1991: {'ocr': True, 'start_page': 7},
+            1992: {'ocr': True, 'start_page': 7},
+            1993: {'ocr': True, 'start_page': 7},
+            1994: {'ocr': True, 'start_page': 7},
+            1995: {'ocr': True, 'start_page': 6},
+            2001: {'ocr': False, 'start_page': 1},
+            2002: {'ocr': False, 'start_page': 1},
+            2003: {'ocr': False, 'start_page': 1},
+            2004: {'ocr': False, 'start_page': 1},
+            2005: {'ocr': False, 'start_page': 1},
+            2006: {'ocr': False, 'start_page': 1},
+            2007: {'ocr': False, 'start_page': 1},
             2008: {'ocr': False, 'start_page': 1},
             2009: {'ocr': False, 'start_page': 1}}
+
 for year in pdf_info:
     pdf_path = os.path.join(pdf_dir, "BBC{}.pdf".format(year))
     if pdf_info[year]['ocr']:
