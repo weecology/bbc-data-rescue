@@ -46,19 +46,18 @@ def cleanup_nonpara_pages(path, start_page):
         os.remove(os.path.join(path, "BBC{}-{}.txt".format(year, page)))
         os.remove(os.path.join(path, "BBC{}-{}.png".format(year, page)))
 
-def combine_txt_files_by_yr(path, years):
-    """Combine multiple text files into a single file for each year
+def combine_txt_files(path, year):
+    """Combine multiple text files into a single file for a given year
 
     File names have the general format: BBC1988-0.txt
     
     """
-    for year in years:
-        with open(os.path.join(path, "bbc_combined_{}.txt".format(year)), 'w') as outfile:
-            filenames = glob(os.path.join(path, "BBC{}*.txt".format(year)))
-            sorted_filenames = sorted_nicely(filenames)
-            for fname in sorted_filenames:
-                with open(fname) as infile:
-                    outfile.write(infile.read())
+    with open(os.path.join(path, "bbc_combined_{}.txt".format(year)), 'w') as outfile:
+        filenames = glob(os.path.join(path, "BBC{}*.txt".format(year)))
+        sorted_filenames = sorted_nicely(filenames)
+        for fname in sorted_filenames:
+            with open(fname) as infile:
+                outfile.write(infile.read())
 
 def sorted_nicely(l): 
     """ Sort the given iterable in the way that humans expect.
@@ -97,7 +96,7 @@ for year in pdf_info:
     if pdf_info[year]['ocr']:
         convert_pdf_to_text(pdf_path, data_dir)
         cleanup_nonpara_pages(data_dir, pdf_info[year]['start_page'])
-        combine_txt_files_by_yr(data_dir, para_starts.keys())
+        combine_txt_files(data_dir, year)
     else:
         output_file_path = os.path.join(data_dir, "bbc_combined_{}.txt".format(year))
         convert_pdf_to_text_no_ocr(pdf_path, output_file_path)
