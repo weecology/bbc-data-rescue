@@ -177,8 +177,11 @@ def extract_counts(data, year):
                     count = '{}.{}'.format(search.group(1), search.group(2))
             elif record.count(',') == 0 and record.count('.') == 2: # Comma mis-OCR'd as period
                 species, count = record.split('.', maxsplit=1)
-            else:
+            elif record.count(',') == 1:
                 species, count = record.split(',')
+            else:
+                species, count = record.strip().rsplit(' ', 1)
+
             species = get_cleaned_species(species)
             if species:
                 counts_record = [year, data['SiteNumInCensus'], species,
