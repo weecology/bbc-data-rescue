@@ -6,7 +6,7 @@ def convert_pdf_to_images(filename, output_path, ocr_margins):
     """Convert a pdf to images"""
     filename_w_path = os.path.splitext(filename)[0]
     filename_wo_path = os.path.split(filename_w_path)[-1]
-    os.system("convert -density 350 -crop {0} {1}.pdf {2}.png".format(ocr_margins, filename_w_path, os.path.join(output_path, filename_wo_path)))
+    os.system("convert -density 375 -crop {0} {1}.pdf {2}.png".format(ocr_margins, filename_w_path, os.path.join(output_path, filename_wo_path)))
 
 def ocr(filename):
     """OCR a file using tesseract"""
