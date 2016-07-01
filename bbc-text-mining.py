@@ -107,7 +107,9 @@ def parse_block(block, site_name, site_num, year):
                     '; Raven,': '; Common Raven,',
                     '+_': '+',
                     'chickadee sp.;': 'chickadee sp.,',
-                    '98.0 territories, (236/40 ha).': '98.0 territories (236/40 ha).'
+                    'Yellow Warbler, 0.5, Common Yellowthroat, 0.5.': 'Yellow Warbler, 0.5; Common Yellowthroat, 0.5.',
+                    'Whip-poor-will, 1.0, European Starling, 1.0': 'Whip-poor-will, 1.0; European Starling, 1.0',
+                    '80(9\'45"': '80°9\'45"'
     }
     block = get_cleaned_string(block)
     for replacement in replacements:
@@ -147,7 +149,7 @@ def parse_txt_file(infile, year):
 
 def get_latlong(location):
     """Extract the latitude and longitude from the Location data"""
-    regex =  """([0-9]{1,2})[ ]*[°˚05C]([0-9]{1,2}) *[’|'|‘][0-9]{0,2}["|”]{0,1} *N,*[ |\\n]([0-9]{2,3})[ ]*[°˚05C]([0-9]{1,2})[ ]*[’|'|‘][0-9]{0,2}["|”]{0,1} *[W|V|;|.]"""
+    regex =  """([0-9]{1,2})[ ]*[º°˚05C]([0-9]{1,2}) *[’|'|‘][0-9]{0,2}["|”]{0,1} *N,*[ |\\n]([0-9]{2,3})[ ]*[º°˚05C]([0-9]{1,2})[ ]*[’|'|‘][0-9]{0,2}["|”]{0,1} *[W|V|;|.]"""
     search = re.search(regex, location)
     if search:
         lat_deg, lat_min = int(search.group(1)), int(search.group(2))
@@ -217,7 +219,8 @@ def get_clean_block(block):
                     'kmz': 'km2',
                     '\\N': 'W',
                     'VV': 'W',
-                    'lVI': 'M',}
+                    'lVI': 'M',
+                    '\x0c': ''}
     for replacement in replacements:
         if replacement in block:
             block = block.replace(replacement, replacements[replacement])
@@ -304,7 +307,7 @@ def extract_total(total):
     """Extract the total number of species and total territories"""
     total = get_cleaned_string(total)
     extracted = dict()
-    regex = '([0-9]{1,3}) species; ([0-9]{1,4}\.{0,1}[0-9]{0,1}) (territories|territorial males) \(([^)]+)\).'
+    regex = '([0-9]{1,3}) species[;|,] ([0-9]{1,4}\.{0,1}[0-9]{0,1}) (territories|territorial males)[;|,]* \(([^)]+)\)'
     search = re.search(regex, total)
     extracted['total_species'] = int(search.group(1))
     extracted['total_territories'] = float(search.group(2))
