@@ -310,10 +310,10 @@ def extract_total(total):
     """Extract the total number of species and total territories"""
     total = get_cleaned_string(total)
     extracted = dict()
-    regex = '([0-9]{1,3}) species[;|,] ([0-9]{1,4}\.{0,1}[0-9]{0,1}) (territories|territorial males)[;|,]* \(([^)]+)\)'
-    search = re.search(regex, total)
+    regex = '([0-9]{1,3}) species[;|,] ([0-9 ]{1,4}\.{0,1}[0-9]{0,1}) (territories|territorial males)[;|,]* \(([^)]+)\)'
+    search = re.search(regex, total, re.IGNORECASE)
     extracted['total_species'] = int(search.group(1))
-    extracted['total_territories'] = float(search.group(2))
+    extracted['total_territories'] = float(search.group(2).replace(' ', ''))
     extracted['total_terr_notes'] = search.group(4)
     return extracted
 
