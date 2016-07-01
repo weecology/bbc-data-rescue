@@ -2,24 +2,24 @@ import os
 import re
 from glob import glob
 
-def convert_pdf_to_images(filename, output_path):
+def convert_pdf_to_images(filename, output_path, ocr_margins):
     """Convert a pdf to images"""
     filename_w_path = os.path.splitext(filename)[0]
     filename_wo_path = os.path.split(filename_w_path)[-1]
-    os.system("convert -density 350 -crop 0x0+0+330 {0}.pdf {1}.png".format(filename_w_path, os.path.join(output_path, filename_wo_path)))
+    os.system("convert -density 350 -crop {0} {1}.pdf {2}.png".format(ocr_margins, filename_w_path, os.path.join(output_path, filename_wo_path)))
 
 def ocr(filename):
     """OCR a file using tesseract"""
     filename = os.path.splitext(filename)[0]
     os.system("tesseract {0}.png {0}".format(filename))
 
-def convert_pdf_to_text(pdf_path, output_path):
+def convert_pdf_to_text(pdf_path, output_path, ocr_margins='0x0+0+330'):
     """Convert a non-OCR'd PDF into text
 
     Use convert to convert to images and tesseract for OCR
 
     """
-    convert_pdf_to_images(pdf_path, output_path)
+    convert_pdf_to_images(pdf_path, output_path, ocr_margins)
 
     #multi-page pdfs create multiple png files so loop over them
     basename = os.path.splitext(os.path.basename(pdf_path))[0]
@@ -86,7 +86,8 @@ pdf_info = {1988: {'ocr': True, 'start_page': 4},
             2003: {'ocr': False, 'start_page': 1},
             2004: {'ocr': False, 'start_page': 1},
             2005: {'ocr': False, 'start_page': 1},
-            2006: {'ocr': False, 'start_page': 1},
+            # 2006 Needs OCR because column encoding is broken
+            2006: {'ocr': True, 'start_page': 1, 'ocr_margins': '3000x2900+0+300'},
             2007: {'ocr': False, 'start_page': 1},
             2008: {'ocr': False, 'start_page': 1},
             2009: {'ocr': False, 'start_page': 1}}
@@ -94,7 +95,10 @@ pdf_info = {1988: {'ocr': True, 'start_page': 4},
 for year in pdf_info:
     pdf_path = os.path.join(pdf_dir, "BBC{}.pdf".format(year))
     if pdf_info[year]['ocr']:
-        convert_pdf_to_text(pdf_path, data_dir)
+        if 'ocr_margins' in pdf_info[year]:
+            convert_pdf_to_text(pdf_path, data_dir, pdf_info[year]['ocr_margins'])
+        else:
+            convert_pdf_to_text(pdf_path, data_dir)
         cleanup_nonpara_pages(data_dir, pdf_info[year]['start_page'])
         combine_txt_files(data_dir, year)
     else:
