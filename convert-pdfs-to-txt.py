@@ -75,19 +75,19 @@ para_starts = {1988: 4, 1989: 6, 1990: 6, 1991: 7,
 pdf_dir = "./pdfs/"
 data_dir = "./data/"
 
-pdf_info = {1988: {'ocr': True, 'start_page': 4},
+pdf_info = {1988: {'ocr': True, 'start_page': 4, 'ocr_margins': '0x0+0+375'},
             1989: {'ocr': True, 'start_page': 6},
             1990: {'ocr': True, 'start_page': 6},
-            1991: {'ocr': True, 'start_page': 7},
-            1992: {'ocr': True, 'start_page': 7},
-            1993: {'ocr': True, 'start_page': 7},
-            1994: {'ocr': True, 'start_page': 7},
+            1991: {'ocr': True, 'start_page': 7, 'ocr_margins': '0x0+0+375'},
+            1992: {'ocr': True, 'start_page': 7, 'ocr_margins': '0x0+0+375'},
+            1993: {'ocr': True, 'start_page': 7, 'ocr_margins': '0x0+0+350'},
+            1994: {'ocr': True, 'start_page': 7, 'ocr_margins': '0x0+0+375'},
             1995: {'ocr': True, 'start_page': 6},
             2003: {'ocr': False, 'start_page': 1},
             2004: {'ocr': False, 'start_page': 1},
             2005: {'ocr': False, 'start_page': 1},
             # 2006 Needs OCR because column encoding is broken
-            2006: {'ocr': True, 'start_page': 1, 'ocr_margins': '3000x2900+0+300'},
+            2006: {'ocr': True, 'start_page': 1, 'ocr_margins': '3000x3000+0+350'},
             2007: {'ocr': False, 'start_page': 1},
             2008: {'ocr': False, 'start_page': 1},
             2009: {'ocr': False, 'start_page': 1}}
