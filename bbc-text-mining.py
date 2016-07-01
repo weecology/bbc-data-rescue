@@ -317,10 +317,10 @@ def extract_total(total):
 def extract_continuity(continuity, year):
     """Extract establishment year and number of years surveyed"""
     continuity = get_cleaned_string(continuity)
+    continuity = re.sub('\(([^)]+)\)', '', continuity)
     removals = ['Established', 'years', 'yrs', 'yr', 'consecutive', 'intermittent']
     for removal in removals:
         continuity = continuity.replace(removal, '').strip(' \n.')
-    continuity = re.sub('\(([^)]+)\)', '', continuity)
     extracted = dict()
     if 'New' in continuity:
         extracted['established'] = year
