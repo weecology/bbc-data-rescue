@@ -286,16 +286,16 @@ def extract_coverage(coverage):
     """Extract number of hours and number of visits from Coverage"""
     coverage = get_cleaned_string(coverage)
     extracted = dict()
-    re_modern = '([0-9]{1,3}\.{0,1}[0-9]{0,2}) h; ([0-9]{1,2}) [V|v]isits(.*)'
+    re_modern = '([0-9]{1,3}\.{0,1}[0-9]{0,2}) h; ([0-9]{1,2}) Visits(.*)'
     re_modern_no_visits = '([0-9]{1,3}\.{0,1}[0-9]{0,2}) h'
-    re_1988 = '([0-9]{1,3}) [V|v]isits; ([0-9]{1,3}) study[-|—]hours;(.*)'
+    re_1988 = '([0-9]{1,3}) Visits; ([0-9]{1,3}) study[-|—]hours;(.*)'
     re_1988_no_visits = '([0-9]{1,3}) study[-|—]hours[;. ](.*)'
     if year > 1988:
-        search = re.search(re_modern, coverage)
-        search_no_visits = re.search(re_modern_no_visits, coverage)
+        search = re.search(re_modern, coverage, re.IGNORECASE)
+        search_no_visits = re.search(re_modern_no_visits, coverage, re.IGNORECASE)
     else:
-        search = re.search(re_1988, coverage)
-        search_no_visits = re.search(re_1988_no_visits, coverage)
+        search = re.search(re_1988, coverage, re.IGNORECASE)
+        search_no_visits = re.search(re_1988_no_visits, coverage, re.IGNORECASE)
     if search:
         extracted['hours'] = float(search.group(1))
         extracted['visits'] = int(search.group(2))
