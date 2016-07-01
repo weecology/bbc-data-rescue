@@ -109,7 +109,22 @@ def parse_block(block, site_name, site_num, year):
                     'chickadee sp.;': 'chickadee sp.,',
                     'Yellow Warbler, 0.5, Common Yellowthroat, 0.5.': 'Yellow Warbler, 0.5; Common Yellowthroat, 0.5.',
                     'Whip-poor-will, 1.0, European Starling, 1.0': 'Whip-poor-will, 1.0; European Starling, 1.0',
-                    '80(9\'45"': '80°9\'45"'
+                    '80(9\'45"': '80°9\'45"',
+                    'American Crow; 1.0;': 'American Crow, 1.0;',
+                    "47°08'N7 99°15'W;": "47°08'N 99°15'W;",
+                    "', 7'6°45": ", 76°45",
+                    "43°] 6’N": "43°16'N",
+                    "121°461W": "121°46'W",
+                    "39.] h;": "39.1 h;",
+                    "74°ll": "74°11",
+                    "40°] 1": "40°11",
+                    "Estao lished": "Established",
+                    "Estabo lished": "Established",
+                    "Estab lished": "Established",
+                    "79°O": "79°0",
+                    "79°]": "79°1",
+                    "12.] h;": "12.1 h;",
+                    "terﬁtories": "territories"
     }
     block = get_cleaned_string(block)
     for replacement in replacements:
@@ -149,7 +164,7 @@ def parse_txt_file(infile, year):
 
 def get_latlong(location):
     """Extract the latitude and longitude from the Location data"""
-    regex =  """([0-9]{1,2})[ ]*[º°˚05C]([0-9]{1,2}) *[’|'|‘][0-9]{0,2}["|”]{0,1} *N,*[ |\\n]([0-9]{2,3})[ ]*[º°˚05C]([0-9]{1,2})[ ]*[’|'|‘][0-9]{0,2}["|”]{0,1} *[W|V|;|.]"""
+    regex =  """([0-9]{1,2})[ ]*[º°˚05CD']([0-9]{1,2}) *[’|'|‘][0-9]{0,2}["|”]{0,1} *N,*[ |\\n]([0-9]{2,3})[ ]*[º°˚05CD']([0-9]{1,2})[ ]*[’|'|‘| ][0-9]{0,2}["|”]{0,1} *[W|V|;|.]"""
     search = re.search(regex, location)
     if search:
         lat_deg, lat_min = int(search.group(1)), int(search.group(2))
@@ -232,8 +247,8 @@ def get_clean_block(block):
 def get_clean_size(size_data):
     """Remove units, notes, and whitespace"""
     size = size_data.split('ha')[0]
-    size = size.replace('.]', '1')
-    size = size.replace('.?)', '3')
+    size = size.replace('.]', '1').replace('.?)', '3')
+    size = size.replace(' ', '') # Sometimes OCR adds a space
     return float(size.strip(' .\n'))
 
 @lru_cache(maxsize=None)
