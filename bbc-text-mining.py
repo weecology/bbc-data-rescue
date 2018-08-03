@@ -25,6 +25,7 @@ def parse_block(block, site_name, site_num, year):
     # Cleanup difficult issues manually
     # Combination of difficult \n's and OCR mistakes
     replacements = {'Cemus': 'Census',
+                    'Description of plot': 'Description of Plot',
                     'Description Oi Plot': 'Description of Plot',
                     'Acknowledgmentsz': 'Acknowledgments: ',
                     'Other Observers:]': 'Other Observers: ',
@@ -104,7 +105,26 @@ def parse_block(block, site_name, site_num, year):
                     'Common Crow': 'American Crow',
                     ', Raven,': ', Common Raven,',
                     '; Raven,': '; Common Raven,',
-                    '+_': '+'
+                    '+_': '+',
+                    'chickadee sp.;': 'chickadee sp.,',
+                    'Yellow Warbler, 0.5, Common Yellowthroat, 0.5.': 'Yellow Warbler, 0.5; Common Yellowthroat, 0.5.',
+                    'Whip-poor-will, 1.0, European Starling, 1.0': 'Whip-poor-will, 1.0; European Starling, 1.0',
+                    '80(9\'45"': '80°9\'45"',
+                    'American Crow; 1.0;': 'American Crow, 1.0;',
+                    "47°08'N7 99°15'W;": "47°08'N 99°15'W;",
+                    "', 7'6°45": ", 76°45",
+                    "43°] 6’N": "43°16'N",
+                    "121°461W": "121°46'W",
+                    "39.] h;": "39.1 h;",
+                    "74°ll": "74°11",
+                    "40°] 1": "40°11",
+                    "Estao lished": "Established",
+                    "Estabo lished": "Established",
+                    "Estab lished": "Established",
+                    "79°O": "79°0",
+                    "79°]": "79°1",
+                    "12.] h;": "12.1 h;",
+                    "terﬁtories": "territories"
     }
     block = get_cleaned_string(block)
     for replacement in replacements:
@@ -144,7 +164,7 @@ def parse_txt_file(infile, year):
 
 def get_latlong(location):
     """Extract the latitude and longitude from the Location data"""
-    regex =  """([0-9]{1,2})[ ]*[°05C]([0-9]{1,2}) *[’|'|‘][0-9]{0,2}["|”]{0,1} *N,[ |\\n]([0-9]{2,3})[ ]*[°05C]([0-9]{1,2})[ ]*[’|'|‘][0-9]{0,2}["|”]{0,1} *[W|V|;|.]"""
+    regex =  """([0-9]{1,2})[ ]*[º°˚05CD']([0-9]{1,2}) *[’|'|‘][0-9]{0,2}["|”]{0,1} *N,*[ |\\n]([0-9]{2,3})[ ]*[º°˚05CD']([0-9]{1,2})[ ]*[’|'|‘| ][0-9]{0,2}["|”]{0,1} *[W|V|;|.]"""
     search = re.search(regex, location)
     if search:
         lat_deg, lat_min = int(search.group(1)), int(search.group(2))
@@ -172,8 +192,11 @@ def extract_counts(data, year):
                     count = '{}.{}'.format(search.group(1), search.group(2))
             elif record.count(',') == 0 and record.count('.') == 2: # Comma mis-OCR'd as period
                 species, count = record.split('.', maxsplit=1)
-            else:
+            elif record.count(',') == 1:
                 species, count = record.split(',')
+            else:
+                species, count = record.strip().rsplit(' ', 1)
+
             species = get_cleaned_species(species)
             if species:
                 counts_record = [year, data['SiteNumInCensus'], species,
@@ -214,7 +237,8 @@ def get_clean_block(block):
                     'kmz': 'km2',
                     '\\N': 'W',
                     'VV': 'W',
-                    'lVI': 'M',}
+                    'lVI': 'M',
+                    '\x0c': ''}
     for replacement in replacements:
         if replacement in block:
             block = block.replace(replacement, replacements[replacement])
@@ -223,8 +247,8 @@ def get_clean_block(block):
 def get_clean_size(size_data):
     """Remove units, notes, and whitespace"""
     size = size_data.split('ha')[0]
-    size = size.replace('.]', '1')
-    size = size.replace('.?)', '3')
+    size = size.replace('.]', '1').replace('.?)', '3')
+    size = size.replace(' ', '') # Sometimes OCR adds a space
     return float(size.strip(' .\n'))
 
 @lru_cache(maxsize=None)
@@ -240,7 +264,8 @@ def get_cleaned_species(species):
                                          processor=str, # Needed to hack around https://github.com/seatgeek/fuzzywuzzy/issues/77
                                          scorer=fuzz.ratio)
     if matched_species[1] >= 70:
-        if matched_species[1] <100: matched[species] = matched_species
+        if matched_species[1] < 100:
+            matched[species] = matched_species
         species = matched_species[0]
     else:
         unmatched.append((species, matched_species))
@@ -276,16 +301,16 @@ def extract_coverage(coverage):
     """Extract number of hours and number of visits from Coverage"""
     coverage = get_cleaned_string(coverage)
     extracted = dict()
-    re_modern = '([0-9]{1,3}\.{0,1}[0-9]{0,2}) h; ([0-9]{1,2}) [V|v]isits(.*)'
+    re_modern = '([0-9]{1,3}\.{0,1}[0-9]{0,2}) h; ([0-9]{1,2}) Visits(.*)'
     re_modern_no_visits = '([0-9]{1,3}\.{0,1}[0-9]{0,2}) h'
-    re_1988 = '([0-9]{1,3}) [V|v]isits; ([0-9]{1,3}) study[-|—]hours;(.*)'
+    re_1988 = '([0-9]{1,3}) Visits; ([0-9]{1,3}) study[-|—]hours;(.*)'
     re_1988_no_visits = '([0-9]{1,3}) study[-|—]hours[;. ](.*)'
     if year > 1988:
-        search = re.search(re_modern, coverage)
-        search_no_visits = re.search(re_modern_no_visits, coverage)
+        search = re.search(re_modern, coverage, re.IGNORECASE)
+        search_no_visits = re.search(re_modern_no_visits, coverage, re.IGNORECASE)
     else:
-        search = re.search(re_1988, coverage)
-        search_no_visits = re.search(re_1988_no_visits, coverage)
+        search = re.search(re_1988, coverage, re.IGNORECASE)
+        search_no_visits = re.search(re_1988_no_visits, coverage, re.IGNORECASE)
     if search:
         extracted['hours'] = float(search.group(1))
         extracted['visits'] = int(search.group(2))
@@ -300,20 +325,20 @@ def extract_total(total):
     """Extract the total number of species and total territories"""
     total = get_cleaned_string(total)
     extracted = dict()
-    regex = '([0-9]{1,3}) species; ([0-9]{1,4}\.{0,1}[0-9]{0,1}) (territories|territorial males) \(([^)]+)\).'
-    search = re.search(regex, total)
+    regex = '([0-9]{1,3}) species[;|,] ([0-9 ]{1,4}\.{0,1}[0-9]{0,1}) (territories|territorial males)[;|,]* \(([^)]+)\)'
+    search = re.search(regex, total, re.IGNORECASE)
     extracted['total_species'] = int(search.group(1))
-    extracted['total_territories'] = float(search.group(2))
+    extracted['total_territories'] = float(search.group(2).replace(' ', ''))
     extracted['total_terr_notes'] = search.group(4)
     return extracted
 
 def extract_continuity(continuity, year):
     """Extract establishment year and number of years surveyed"""
     continuity = get_cleaned_string(continuity)
+    continuity = re.sub('\(([^)]+)\)', '', continuity)
     removals = ['Established', 'years', 'yrs', 'yr', 'consecutive', 'intermittent']
     for removal in removals:
         continuity = continuity.replace(removal, '').strip(' \n.')
-    continuity = re.sub('\(([^)]+)\)', '', continuity)
     extracted = dict()
     if 'New' in continuity:
         extracted['established'] = year
@@ -403,7 +428,7 @@ census_table = pd.DataFrame(columns = ['sitename', 'siteNumInCensus',
                                        'cov_visits', 'cov_times', 'cov_notes', 'area',
                                        'richness', 'territories', 'terr_notes',
                                        'weather'])
-years = range(1988,1996)
+years = list(range(1988, 1996)) + list(range(2003, 2010))
 
 for year in years:
     print("\nProcessing {} data...\n".format(year))
