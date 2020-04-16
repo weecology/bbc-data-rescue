@@ -1782,8 +1782,9 @@ siteID,year,species,count,status
 53,1988.0,American Goldfinch,2.0,breeder
 53,1988.0,Rufous-sided Towhee,1.5,breeder
 53,1988.0,White-crowned Sparrow,1.5,breeder
-53,1988.0,Allen's Hummingbird,LU,breeder
-53,1988.0,American Coot,0.5,breeder
+53,1988.0,Allen's Hummingbird,1.0,breeder
+53,1988.0,Bushtit,0.5,breeder
+53,1988.0,American Robin,0.5,breeder
 53,1988.0,Purple Finch,0.5,breeder
 53,1988.0,Red-tailed Hawk,+,breeder
 53,1988.0,Mourning Dove,+,breeder
